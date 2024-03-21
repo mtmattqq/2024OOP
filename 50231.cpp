@@ -1,5 +1,4 @@
-#include <stdio.h>
-#include <stdbool.h>
+#include <iostream>
 
 int f(int k, int s) {
     return (k % s * 77 + 2222) % s;
@@ -33,13 +32,13 @@ int ans[10000010];
 
 int main(void) {
     int n, s, c;
-    scanf("%d%d%d", &n, &s, &c);
+    std::cin >> n >> s >> c;
 
     int first = 0, first_pos, second_pos, ret;
     for(int i = 0; i < n; ++i) {
         for(int j = 0; j <= i; ++j) {
             for(int k = 0; k <= i; ++k) {
-                scanf("%d", &(bd[i][j][k]));
+                std::cin >> bd[i][j][k];
                 if(j == i || k == i) {
                     ret = insert(ht, bd[i][j][k], s, c, (j << 8) + k);
                     if(ret) {
@@ -102,6 +101,6 @@ int main(void) {
     }
 
     for(int i = 0; i < idx; ++i) {
-        printf("%d%c", ans[i], " \n"[i == idx - 1]);
+        std::cout << ans[i] << " \n"[i == idx - 1];
     }
 }
