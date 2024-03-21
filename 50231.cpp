@@ -1,11 +1,16 @@
 #include <iostream>
+#include <vector>
+
+template<typename T> using Vec = std::vector<T>;
+template<typename T> using Mat = Vec<Vec<T>>;
+template<typename T> using Cub = Vec<Mat<T>>;
 
 int f(int k, int s) {
     return (k % s * 77 + 2222) % s;
 }
 
 int insert(
-    int ht[20010][10][2], 
+    Cub<int> &ht, 
     int k, int s, int c, 
     int idx
 ) {
@@ -25,14 +30,14 @@ int insert(
     }
 }
 
-int ht[20010][10][2] = {0};
-int bd[110][110][110] = {0};
-int top[110][110] = {0};
-int ans[10000010];
-
 int main(void) {
     int n, s, c;
     std::cin >> n >> s >> c;
+
+    Cub<int> ht(20010, Mat<int>(10, Vec<int>(2)));
+    Cub<int> bd(110, Mat<int>(110, Vec<int>(110)));
+    Mat<int> top(110, Vec<int>(110));
+    Vec<int> ans(10000010);
 
     int first = 0, first_pos, second_pos, ret;
     for(int i = 0; i < n; ++i) {
