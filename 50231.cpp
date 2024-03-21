@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <utility>
 
 template<typename T> using Vec = std::vector<T>;
 template<typename T> using Mat = Vec<Vec<T>>;
@@ -15,13 +16,13 @@ int insert(
     int idx
 ) {
     int p = f(k, s);
-    for(int i = 0; i <= c; ++i) {
+    for(int i{0}; i <= c; ++i) {
         if(ht[p][i][0] == k) {
             return (1 << 20) + i;
         }
     }
 
-    for(int i = 0; i <= c; ++i) {
+    for(int i{0}; i <= c; ++i) {
         if(ht[p][i][0] == 0) {
             ht[p][i][0] = k;
             ht[p][i][1] = idx;
@@ -30,19 +31,13 @@ int insert(
     }
 }
 
-int main(void) {
-    int n, s, c;
-    std::cin >> n >> s >> c;
-
-    Cub<int> ht(20010, Mat<int>(10, Vec<int>(2)));
-    Cub<int> bd(110, Mat<int>(110, Vec<int>(110)));
-    Mat<int> top(110, Vec<int>(110));
-    Vec<int> ans(10000010);
-
-    int first = 0, first_pos, second_pos, ret;
-    for(int i = 0; i < n; ++i) {
-        for(int j = 0; j <= i; ++j) {
-            for(int k = 0; k <= i; ++k) {
+std::pair<int, int> input_insert(
+    Cub<int> &ht, const int &s, const int &c, Cub<int> &bd, Mat<int> &top, int &first
+) {
+    int first_pos, second_pos, ret;
+    for(int i{0}; i < bd.size(); ++i) {
+        for(int j{0}; j <= i; ++j) {
+            for(int k{0}; k <= i; ++k) {
                 std::cin >> bd[i][j][k];
                 if(j == i || k == i) {
                     ret = insert(ht, bd[i][j][k], s, c, (j << 8) + k);
@@ -60,7 +55,14 @@ int main(void) {
             }
         }
     }
+    return {first_pos, second_pos};
+}
 
+int find_pair(
+    int &first, int &first_pos, int &second_pos, 
+    Cub<int> &ht, const int &s, const int &c, Cub<int> &bd, Mat<int> &top,
+    Vec<int> &ans
+) {
     int idx = 0;
     while(true) {
         ans[idx++] = first;
@@ -70,10 +72,9 @@ int main(void) {
         top[fr][fc]++;
         top[sr][sc]++;
 
-        ret = 0;
         bool find_new = false;
-        if(top[fr][fc] < n) {
-            ret = insert(ht, bd[top[fr][fc]][fr][fc], s, c, (fr << 8) + fc);
+        if(top[fr][fc] < bd.size()) {
+            int ret{insert(ht, bd[top[fr][fc]][fr][fc], s, c, (fr << 8) + fc)};
             if(ret) {
                 find_new = true;
                 first = bd[top[fr][fc]][fr][fc];
@@ -86,8 +87,8 @@ int main(void) {
             }
         }
 
-        if(top[sr][sc] < n) {
-            ret = insert(ht, bd[top[sr][sc]][sr][sc], s, c, (sr << 8) + sc);
+        if(top[sr][sc] < bd.size()) {
+            int ret{insert(ht, bd[top[sr][sc]][sr][sc], s, c, (sr << 8) + sc)};
             if(ret) {
                 find_new = true;
                 first = bd[top[sr][sc]][sr][sc];
@@ -104,8 +105,26 @@ int main(void) {
             break;
         }
     }
+    return idx;
+}
 
-    for(int i = 0; i < idx; ++i) {
-        std::cout << ans[i] << " \n"[i == idx - 1];
+int main(void) {
+    int n, s, c;
+    std::cin >> n >> s >> c;
+
+    Cub<int> ht(20010, Mat<int>(c, Vec<int>(2)));
+    Cub<int> bd(n, Mat<int>(n, Vec<int>(n)));
+    Mat<int> top(n, Vec<int>(n));
+    Vec<int> ans(10000010);
+
+    int first{0}, ret{0};
+    std::pair<int, int> pos{input_insert(ht, s, c, bd, top, first)};
+    int &first_pos{pos.first};
+    int &second_pos{pos.second};
+
+    int ans_num{find_pair(first, first_pos, second_pos, ht, s, c, bd, top, ans)};
+
+    for(int i = 0; i < ans_num; ++i) {
+        std::cout << ans[i] << " \n"[i == ans_num - 1];
     }
 }
