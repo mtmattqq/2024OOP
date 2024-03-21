@@ -32,11 +32,6 @@ int top[110][110] = {0};
 int ans[10000010];
 
 int main(void) {
-
-#ifdef DEBUG
-    freopen("input.in", "r", stdin);
-#endif
-
     int n, s, c;
     scanf("%d%d%d", &n, &s, &c);
 
@@ -61,10 +56,6 @@ int main(void) {
             }
         }
     }
-
-#ifdef DEBUG
-    printf("input finished");
-#endif
 
     int idx = 0;
     while(true) {
@@ -113,5 +104,4 @@ int main(void) {
     for(int i = 0; i < idx; ++i) {
         printf("%d%c", ans[i], " \n"[i == idx - 1]);
     }
-    return 0;
 }
