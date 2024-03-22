@@ -1,81 +1,12 @@
 #include <iostream>
 #include <vector>
 #include <utility>
-
-template<typename T> using Vec = std::vector<T>;
-template<typename T> using Mat = Vec<Vec<T>>;
-template<typename T> using Cub = Vec<Mat<T>>;
-
-struct cube {
-    int val, idx;
-};
-
-struct hash_table {
-    Mat<cube> data;
-    int s, c;
-    hash_table(int seed, int cap)
-        : s(seed), c(cap) 
-    {
-        data = Mat<cube>(20010, Vec<cube>(c, {0, 0}));
-    }
-};
-
-struct tower {
-    int sz;
-    Cub<int> bd;
-    Mat<int> top;
-    tower(int n)
-        : sz(n) 
-    {
-        bd = Cub<int>(n, Mat<int>(n, Vec<int>(n)));
-        top = Mat<int>(n, Vec<int>(n));
-    }
-};
-
-struct pair {
-    int val;
-    int first_pos, second_pos;
-};
-
-struct position {
-    int row, col;
-    position(int r, int c)
-        : row(r), col(c) {}
-};
-
-int f(int k, int s) {
-    return (k % s * 77 + 2222) % s;
-}
-
-int insert(hash_table &ht, int k, int idx) {
-    int p = f(k, ht.s);
-    for(int i{0}; i <= ht.c; ++i) {
-        if(ht.data[p][i].val == k) {
-            return (1 << 20) + i;
-        }
-    }
-
-    for(int i{0}; i <= ht.c; ++i) {
-        if(ht.data[p][i].val == 0) {
-            ht.data[p][i].val = k;
-            ht.data[p][i].idx = idx;
-            return 0;
-        }
-    }
-    exit(-1);
-}
-
-bool erase(hash_table &ht, int val, int idx, pair &this_pair) {
-    int ret{insert(ht, val, idx)};
-    if(!ret) return false;
-    this_pair.val = val;
-    this_pair.first_pos = idx;
-    int p = f(this_pair.val, ht.s);
-    this_pair.second_pos = ht.data[f(this_pair.val, ht.s)][ret ^ (1 << 20)].idx;
-    ht.data[p][ret ^ (1 << 20)].val = 0;
-    ht.data[p][ret ^ (1 << 20)].idx = 0;
-    return true;
-}
+#include "cub.h"
+#include "cube.h"
+#include "hash-table.h"
+#include "tower.h"
+#include "pair.h"
+#include "position.h"
 
 pair input_insert(hash_table &ht, tower &tow) {
     pair ret;
@@ -103,7 +34,6 @@ pair input_insert(hash_table &ht, tower &tow) {
 }
 
 void find_pair(pair first_pair, hash_table &ht, tower &tow, Vec<int> &ans) {
-    int idx = 0;
     while(true) {
         ans.push_back(first_pair.val);
         int fr = first_pair.first_pos >> 8, fc = first_pair.first_pos & ((1 << 8) - 1);
@@ -132,7 +62,7 @@ void find_pair(pair first_pair, hash_table &ht, tower &tow, Vec<int> &ans) {
 }
 
 void print_answer(Vec<int> &ans) {
-    for(int i = 0; i < ans.size(); ++i) {
+    for(int i{0}; i < ans.size(); ++i) {
         std::cout << ans[i] << " \n"[i == ans.size() - 1];
     }
 }
@@ -143,9 +73,8 @@ int main(void) {
 
     hash_table ht(s, c);
     tower tow(n);
-    Vec<int> ans(10000010);
+    Vec<int> ans;
 
-    int first{0};
     pair first_pair{input_insert(ht, tow)};
 
     find_pair(first_pair, ht, tow, ans);
