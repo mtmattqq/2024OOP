@@ -4,19 +4,22 @@
 #include "cub.h"
 #include "cube.h"
 #include "pair.h"
+#include "result.h"
 
-struct hash_table {
+
+class hash_table {
+private:
     Mat<cube> data;
     int s, c;
+    int hash_function(int k, int s);
+public:
     hash_table(int seed, int cap)
         : s(seed), c(cap) 
     {
         data = Mat<cube>(20010, Vec<cube>(c, {0, 0}));
-    }
+    };
+    Result insert(int k, int idx);
+    bool find_erase(int val, int idx, pair &this_pair);
 };
-
-int f(int k, int s);
-int insert(hash_table &ht, int k, int idx);
-bool erase(hash_table &ht, int val, int idx, pair &this_pair);
 
 #endif

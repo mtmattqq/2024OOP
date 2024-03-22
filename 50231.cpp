@@ -10,22 +10,13 @@
 
 pair input_insert(hash_table &ht, tower &tow) {
     pair ret;
-    for(int i{0}; i < tow.bd.size(); ++i) {
-        for(int j{0}; j <= i; ++j) {
-            for(int k{0}; k <= i; ++k) {
+    for(size_t i{0}; i < tow.bd.size(); ++i) {
+        for(size_t j{0}; j <= i; ++j) {
+            for(size_t k{0}; k <= i; ++k) {
                 std::cin >> tow.bd[i][j][k];
                 if(j == i || k == i) {
-                    int pos = insert(ht, tow.bd[i][j][k], (j << 8) + k);
-                    if(pos) {
-                        ret.val = tow.bd[i][j][k];
-                        ret.first_pos = (j << 8) + k;
-                        int p = f(ret.val, ht.s);
-                        ret.second_pos = ht.data[p][pos ^ (1 << 20)].idx;
-                        ht.data[p][pos ^ (1 << 20)].val = 0;
-                        ht.data[p][pos ^ (1 << 20)].idx = 0;
-                    }
+                    ht.find_erase(tow.bd[i][j][k], (j << 8) + k, ret);
                 }
-                
                 tow.top[j][k] = std::max(j, k);
             }
         }
@@ -43,14 +34,14 @@ void find_pair(pair first_pair, hash_table &ht, tower &tow, Vec<int> &ans) {
         tow.top[sr][sc]++;
 
         bool find_new = false;
-        if(tow.top[fr][fc] < tow.bd.size()) {
-            if(erase(ht, tow.bd[tow.top[fr][fc]][fr][fc], (fr << 8) + fc, 
+        if(tow.top[fr][fc] < int(tow.bd.size())) {
+            if(ht.find_erase(tow.bd[tow.top[fr][fc]][fr][fc], (fr << 8) + fc, 
                 first_pair))
                 continue;
         }
 
-        if(tow.top[sr][sc] < tow.bd.size()) {
-            if(erase(ht, tow.bd[tow.top[sr][sc]][sr][sc], (sr << 8) + sc, 
+        if(tow.top[sr][sc] < int(tow.bd.size())) {
+            if(ht.find_erase(tow.bd[tow.top[sr][sc]][sr][sc], (sr << 8) + sc, 
                 first_pair))
                 continue;
         }
@@ -62,7 +53,7 @@ void find_pair(pair first_pair, hash_table &ht, tower &tow, Vec<int> &ans) {
 }
 
 void print_answer(Vec<int> &ans) {
-    for(int i{0}; i < ans.size(); ++i) {
+    for(size_t i{0}; i < ans.size(); ++i) {
         std::cout << ans[i] << " \n"[i == ans.size() - 1];
     }
 }
