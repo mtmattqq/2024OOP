@@ -6,125 +6,148 @@ template<typename T> using Vec = std::vector<T>;
 template<typename T> using Mat = Vec<Vec<T>>;
 template<typename T> using Cub = Vec<Mat<T>>;
 
+struct cube {
+    int val, idx;
+};
+
+struct hash_table {
+    Mat<cube> data;
+    int s, c;
+    hash_table(int seed, int cap)
+        : s(seed), c(cap) 
+    {
+        data = Mat<cube>(20010, Vec<cube>(c, {0, 0}));
+    }
+};
+
+struct tower {
+    int sz;
+    Cub<int> bd;
+    Mat<int> top;
+    tower(int n)
+        : sz(n) 
+    {
+        bd = Cub<int>(n, Mat<int>(n, Vec<int>(n)));
+        top = Mat<int>(n, Vec<int>(n));
+    }
+};
+
+struct pair {
+    int val;
+    int first_pos, second_pos;
+};
+
+struct position {
+    int row, col;
+    position(int r, int c)
+        : row(r), col(c) {}
+};
+
 int f(int k, int s) {
     return (k % s * 77 + 2222) % s;
 }
 
-int insert(
-    Cub<int> &ht, 
-    int k, int s, int c, 
-    int idx
-) {
-    int p = f(k, s);
-    for(int i{0}; i <= c; ++i) {
-        if(ht[p][i][0] == k) {
+int insert(hash_table &ht, int k, int idx) {
+    int p = f(k, ht.s);
+    for(int i{0}; i <= ht.c; ++i) {
+        if(ht.data[p][i].val == k) {
             return (1 << 20) + i;
         }
     }
 
-    for(int i{0}; i <= c; ++i) {
-        if(ht[p][i][0] == 0) {
-            ht[p][i][0] = k;
-            ht[p][i][1] = idx;
+    for(int i{0}; i <= ht.c; ++i) {
+        if(ht.data[p][i].val == 0) {
+            ht.data[p][i].val = k;
+            ht.data[p][i].idx = idx;
             return 0;
         }
     }
+    exit(-1);
 }
 
-std::pair<int, int> input_insert(
-    Cub<int> &ht, const int &s, const int &c, Cub<int> &bd, Mat<int> &top, int &first
-) {
-    int first_pos, second_pos, ret;
-    for(int i{0}; i < bd.size(); ++i) {
+bool erase(hash_table &ht, int val, int idx, pair &this_pair) {
+    int ret{insert(ht, val, idx)};
+    if(!ret) return false;
+    this_pair.val = val;
+    this_pair.first_pos = idx;
+    int p = f(this_pair.val, ht.s);
+    this_pair.second_pos = ht.data[f(this_pair.val, ht.s)][ret ^ (1 << 20)].idx;
+    ht.data[p][ret ^ (1 << 20)].val = 0;
+    ht.data[p][ret ^ (1 << 20)].idx = 0;
+    return true;
+}
+
+pair input_insert(hash_table &ht, tower &tow) {
+    pair ret;
+    for(int i{0}; i < tow.bd.size(); ++i) {
         for(int j{0}; j <= i; ++j) {
             for(int k{0}; k <= i; ++k) {
-                std::cin >> bd[i][j][k];
+                std::cin >> tow.bd[i][j][k];
                 if(j == i || k == i) {
-                    ret = insert(ht, bd[i][j][k], s, c, (j << 8) + k);
-                    if(ret) {
-                        first = bd[i][j][k];
-                        first_pos = (j << 8) + k;
-                        int p = f(first, s);
-                        second_pos = ht[p][ret ^ (1 << 20)][1];
-                        ht[p][ret ^ (1 << 20)][0] = 0;
-                        ht[p][ret ^ (1 << 20)][1] = 0;
+                    int pos = insert(ht, tow.bd[i][j][k], (j << 8) + k);
+                    if(pos) {
+                        ret.val = tow.bd[i][j][k];
+                        ret.first_pos = (j << 8) + k;
+                        int p = f(ret.val, ht.s);
+                        ret.second_pos = ht.data[p][pos ^ (1 << 20)].idx;
+                        ht.data[p][pos ^ (1 << 20)].val = 0;
+                        ht.data[p][pos ^ (1 << 20)].idx = 0;
                     }
                 }
                 
-                top[j][k] = j > k  ?  j  :  k;
+                tow.top[j][k] = std::max(j, k);
             }
         }
     }
-    return {first_pos, second_pos};
+    return ret;
 }
 
-int find_pair(
-    int &first, int &first_pos, int &second_pos, 
-    Cub<int> &ht, const int &s, const int &c, Cub<int> &bd, Mat<int> &top,
-    Vec<int> &ans
-) {
+void find_pair(pair first_pair, hash_table &ht, tower &tow, Vec<int> &ans) {
     int idx = 0;
     while(true) {
-        ans[idx++] = first;
-        int fr = first_pos >> 8, fc = first_pos & ((1 << 8) - 1);
-        int sr = second_pos >> 8, sc = second_pos & ((1 << 8) - 1);
+        ans.push_back(first_pair.val);
+        int fr = first_pair.first_pos >> 8, fc = first_pair.first_pos & ((1 << 8) - 1);
+        int sr = first_pair.second_pos >> 8, sc = first_pair.second_pos & ((1 << 8) - 1);
 
-        top[fr][fc]++;
-        top[sr][sc]++;
+        tow.top[fr][fc]++;
+        tow.top[sr][sc]++;
 
         bool find_new = false;
-        if(top[fr][fc] < bd.size()) {
-            int ret{insert(ht, bd[top[fr][fc]][fr][fc], s, c, (fr << 8) + fc)};
-            if(ret) {
-                find_new = true;
-                first = bd[top[fr][fc]][fr][fc];
-                first_pos = (fr << 8) + fc;
-                int p = f(first, s);
-                second_pos = ht[f(first, s)][ret ^ (1 << 20)][1];
-                ht[p][ret ^ (1 << 20)][0] = 0;
-                ht[p][ret ^ (1 << 20)][1] = 0;
+        if(tow.top[fr][fc] < tow.bd.size()) {
+            if(erase(ht, tow.bd[tow.top[fr][fc]][fr][fc], (fr << 8) + fc, 
+                first_pair))
                 continue;
-            }
         }
 
-        if(top[sr][sc] < bd.size()) {
-            int ret{insert(ht, bd[top[sr][sc]][sr][sc], s, c, (sr << 8) + sc)};
-            if(ret) {
-                find_new = true;
-                first = bd[top[sr][sc]][sr][sc];
-                first_pos = (sr << 8) + sc;
-                int p = f(first, s);
-                second_pos = ht[p][ret ^ (1 << 20)][1];
-                ht[p][ret ^ (1 << 20)][0] = 0;
-                ht[p][ret ^ (1 << 20)][1] = 0;
+        if(tow.top[sr][sc] < tow.bd.size()) {
+            if(erase(ht, tow.bd[tow.top[sr][sc]][sr][sc], (sr << 8) + sc, 
+                first_pair))
                 continue;
-            }
         }
 
         if(!find_new) {
             break;
         }
     }
-    return idx;
+}
+
+void print_answer(Vec<int> &ans) {
+    for(int i = 0; i < ans.size(); ++i) {
+        std::cout << ans[i] << " \n"[i == ans.size() - 1];
+    }
 }
 
 int main(void) {
     int n, s, c;
     std::cin >> n >> s >> c;
 
-    Cub<int> ht(20010, Mat<int>(c, Vec<int>(2)));
-    Cub<int> bd(n, Mat<int>(n, Vec<int>(n)));
-    Mat<int> top(n, Vec<int>(n));
+    hash_table ht(s, c);
+    tower tow(n);
     Vec<int> ans(10000010);
 
-    int first{0}, ret{0};
-    std::pair<int, int> pos{input_insert(ht, s, c, bd, top, first)};
-    int &first_pos{pos.first};
-    int &second_pos{pos.second};
+    int first{0};
+    pair first_pair{input_insert(ht, tow)};
 
-    int ans_num{find_pair(first, first_pos, second_pos, ht, s, c, bd, top, ans)};
-
-    for(int i = 0; i < ans_num; ++i) {
-        std::cout << ans[i] << " \n"[i == ans_num - 1];
-    }
+    find_pair(first_pair, ht, tow, ans);
+    print_answer(ans);
 }
