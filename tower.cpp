@@ -10,6 +10,10 @@ int& tower::operator[](position pos) {
     return bd[top(pos)][pos.row][pos.col];
 }
 
+int& tower::top(position pos) {
+    return tp[pos.row][pos.col];
+}
+
 pair tower::input_insert() {
     pair ret{0, {0, 0}, {0, 0}};
     for(size_t i{0}; i < size(); ++i) {
