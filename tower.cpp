@@ -10,7 +10,7 @@ int& tower::operator[](position pos) {
     return bd[top(pos)][pos.row][pos.col];
 }
 
-pair tower::input_insert(hash_table &ht) {
+pair tower::input_insert() {
     pair ret{0, {0, 0}, {0, 0}};
     for(size_t i{0}; i < size(); ++i) {
         for(size_t j{0}; j <= i; ++j) {
@@ -26,7 +26,7 @@ pair tower::input_insert(hash_table &ht) {
     return ret;
 }
 
-void tower::find_pair(pair first_pair, hash_table &ht, Vec<int> &ans) {
+void tower::find_pair(pair first_pair, Vec<int> &ans) {
     while(true) {
         ans.push_back(first_pair.val);
 

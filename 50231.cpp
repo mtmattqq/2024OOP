@@ -1,6 +1,4 @@
 #include <iostream>
-#include <vector>
-#include <utility>
 #include "cub.h"
 #include "hash-table.h"
 #include "tower.h"
@@ -16,11 +14,10 @@ int main(void) {
     int n, s, c;
     std::cin >> n >> s >> c;
 
-    hash_table ht(s, c);
-    tower tow(n);
+    tower tow(n, s, c);
     Vec<int> ans;
 
-    pair first_pair{tow.input_insert(ht)};
-    tow.find_pair(first_pair, ht, ans);
+    pair first_pair{tow.input_insert()};
+    tow.find_pair(first_pair, ans);
     print_answer(ans);
 }
