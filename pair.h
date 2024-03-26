@@ -1,9 +1,11 @@
 #ifndef PAIR_H
 #define PAIR_H
 
+#include "position.h"
+
 struct pair {
     int val;
-    int first_pos, second_pos;
+    position first_pos, second_pos;
 };
 
 #endif
