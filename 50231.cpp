@@ -1,6 +1,5 @@
 #include <iostream>
 #include "cub.h"
-#include "hash-table.h"
 #include "tower.h"
 #include "pair.h"
 

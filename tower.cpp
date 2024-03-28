@@ -7,11 +7,11 @@ int tower::size() {
 }
 
 int& tower::operator[](position pos) {
-    return bd[top(pos)][pos.row][pos.col];
+    return bd[top(pos)][pos.get_row()][pos.get_col()];
 }
 
 int& tower::top(position pos) {
-    return tp[pos.row][pos.col];
+    return tp[pos.get_row()][pos.get_col()];
 }
 
 pair tower::input_insert() {

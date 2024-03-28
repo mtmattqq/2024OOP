@@ -15,10 +15,10 @@ private:
     T val;
     std::string err_msg;
 public:
-    Result(T _val)
-        : val(_val), type(OK) {}
-    Result(const std::string &_err_msg = "")
-        : type(ERR), err_msg(_err_msg) {}
+    Result(T _val = 0)
+        : val{_val}, type(OK), err_msg("") {}
+    Result(const std::string &_err_msg)
+        : type(ERR), err_msg(_err_msg), val{0} {}
     T unwrap();
     std::string repr();
     bool ok();
