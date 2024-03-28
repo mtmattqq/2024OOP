@@ -12,15 +12,15 @@ class hash_table {
 private:
     Mat<cube> data;
     int s, c;
-    int hash_function(int k, int s);
+    int hash_function(const int k, const int s) const;
 public:
-    hash_table(int seed, int cap)
+    hash_table(const int seed, const int cap)
         : s(seed), c(cap) 
     {
         data = Mat<cube>(20010, Vec<cube>(c, {0, {0, 0}}));
     };
-    Result insert(int k, position idx);
-    bool find_erase(int val, position idx, pair &this_pair);
+    Result insert(const int k, const position idx);
+    bool find_erase(const int val, const position idx, pair &this_pair);
 };
 
 #endif

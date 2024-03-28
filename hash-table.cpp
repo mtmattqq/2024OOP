@@ -3,11 +3,11 @@
 #include "hash-table.h"
 #include <cstdlib>
 
-int hash_table::hash_function(int k, int s) {
+int hash_table::hash_function(const int k, const int s) const {
     return (k % s * 77 + 2222) % s;
 }
 
-Result hash_table::insert(int k, position idx) {
+Result hash_table::insert(const int k, const position idx) {
     int p = hash_function(k, s);
     for(int i{0}; i <= c; ++i) {
         if(data[p][i].val == k) {
@@ -25,7 +25,7 @@ Result hash_table::insert(int k, position idx) {
     exit(-1);
 }
 
-bool hash_table::find_erase(int val, position idx, pair &this_pair) {
+bool hash_table::find_erase(const int val, const position idx, pair &this_pair) {
     Result ret{insert(val, idx)};
     if(ret.err()) {
         return false;
@@ -35,6 +35,6 @@ bool hash_table::find_erase(int val, position idx, pair &this_pair) {
     int p = hash_function(this_pair.val, s);
     this_pair.second_pos = data[p][ret.unwrap()].idx;
     data[p][ret.unwrap()].val = 0;
-    data[p][ret.unwrap()].idx = position{0, 0};
+    data[p][ret.unwrap()].idx = position(0, 0);
     return true;
 }
